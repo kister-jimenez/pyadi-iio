@@ -12,8 +12,6 @@ HOSTNAMES = [
     "analog.lan",
     "analog-zc706-daq2.local",
     "analog-zc706-fmcomms2.local",
-    "analog-zc706-daq3.local",
-    "analog-adrv9364.local",
 ]
 
 
