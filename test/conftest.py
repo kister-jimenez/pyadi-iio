@@ -359,6 +359,7 @@ def t_sfdr(classname, devicename, channel, param_set, sfdr_min):
         raise Exception(e)
     del sdr
     val = spec.sfdr(data, plot=False)
+    print(val)
     assert val > sfdr_min
 
 
@@ -380,20 +381,19 @@ def gain_check(
     time.sleep(3)
 
     # Check RSSI
-    rssi1 = sdr._get_iio_attr("voltage0", "rssi", False, sdr._ctrl)
-    rssi2 = sdr._get_iio_attr("voltage1", "rssi", False, sdr._ctrl)
-    rssi3 = sdr._get_iio_attr("voltage0", "rssi", False, sdr._ctrl_b)
-    rssi4 = sdr._get_iio_attr("voltage1", "rssi", False, sdr._ctrl_b)
-
     if channel == 0:
+        rssi1 = sdr._get_iio_attr("voltage0", "rssi", False, sdr._ctrl)
         rssi = rssi1
-    if channel == 1:
+    elif channel == 1:
+        rssi2 = sdr._get_iio_attr("voltage1", "rssi", False, sdr._ctrl)
         rssi = rssi2
-    if channel == 2:
+    elif channel == 2:
+        rssi3 = sdr._get_iio_attr("voltage0", "rssi", False, sdr._ctrl_b)
         rssi = rssi3
-    if channel == 3:
+    elif channel == 3:
+        rssi4 = sdr._get_iio_attr("voltage1", "rssi", False, sdr._ctrl_b)
         rssi = rssi4
-    print(rssi1, rssi2, rssi3, rssi4)
+    print(rssi)
     assert rssi >= min_rssi
     assert rssi <= max_rssi
 
