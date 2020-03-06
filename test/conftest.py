@@ -240,6 +240,10 @@ def dds_loopback(classname, devicename, param_set, channel, frequency, scale, pe
     # Set custom device parameters
     for p in param_set.keys():
         setattr(sdr, p, param_set[p])
+
+    if isinstance(sdr, adi.multichip):
+        sdr.multichip_sync()
+
     # Set common buffer settings
     sdr.tx_cyclic_buffer = True
     N = 2 ** 14
@@ -276,6 +280,10 @@ def cw_loopback(classname, devicename, channel, param_set):
     # Set custom device parameters
     for p in param_set.keys():
         setattr(sdr, p, param_set[p])
+
+    if isinstance(sdr, adi.multichip):
+        sdr.multichip_sync()
+
     # Set common buffer settings
     sdr.tx_cyclic_buffer = True
     N = 2 ** 14
@@ -328,6 +336,10 @@ def t_sfdr(classname, devicename, channel, param_set, sfdr_min):
     # Set custom device parameters
     for p in param_set.keys():
         setattr(sdr, p, param_set[p])
+
+    if isinstance(sdr, adi.multichip):
+        sdr.multichip_sync()
+
     time.sleep(5)  # Wait for QEC to kick in
     # Set common buffer settings
     N = 2 ** 14

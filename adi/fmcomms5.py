@@ -30,13 +30,15 @@
 # BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+import time
 
 from adi.ad936x import ad9361
 from adi.context_manager import context_manager
+from adi.multichip import multichip
 from adi.rx_tx import rx_tx
 
 
-class FMComms5(ad9361):
+class FMComms5(ad9361, multichip):
     """ FMComms5 Dual Transceiver Evaluation Board """
 
     _complex_data = True
@@ -72,6 +74,7 @@ class FMComms5(ad9361):
         self._rxadc_chip_b = self._ctx.find_device("cf-ad9361-B")
         self._txdac_chip_b = self._ctx.find_device("cf-ad9361-dds-core-B")
         rx_tx.__init__(self)
+        multichip.__init__(self, self._ctrl_b)
 
     @property
     def filter(self):
