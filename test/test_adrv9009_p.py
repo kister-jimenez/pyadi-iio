@@ -20,11 +20,11 @@ def test_adrv9009_attr(
     test_attribute_single_value(classname, hardware, attr, start, stop, step, tol)
 
 
-#########################################
-#@pytest.mark.parametrize("classname, hardware", [(classname, hardware)])
-#@pytest.mark.parametrize("channel", [0, 1]
-#def test_adrv9009_rx_data(test_dma_rx, classname, hardware, channel):
-#    test_dma_rx(classname, hardware, channel)
+########################################
+@pytest.mark.parametrize("classname, hardware", [(classname, hardware)])
+@pytest.mark.parametrize("channel", [0, 1])
+def test_adrv9009_rx_data(test_dma_rx, classname, hardware, channel):
+   test_dma_rx(classname, hardware, channel)
 
 
 #########################################
@@ -130,17 +130,62 @@ def test_adrv9009_dds_gain_check_agc(
 @pytest.mark.parametrize("classname, hardware", [(classname, hardware)])
 @pytest.mark.parametrize("channel", [0, 1])
 @pytest.mark.parametrize(
+    "param_set",
+    [
+        dict(
+            trx_lo=1000000000,
+            aux_pll_lo=1000000000,
+            rx_powerdown_chan0=1,
+            rx_powerdown_chan1=1,
+            tx_hardwaregain_chan0=0,
+            tx_hardwaregain_chan1=0,
+            calibrate_rx_qec_en=1,
+            calibrate_tx_qec_en=1,
+            calibrate=1,
+            obs_powerdown_chan0=0,
+            obs_powerdown_chan1=0,
+            obs_hardwaregain_chan0=30,
+            obs_hardwaregain_chan1=30,
+        )
+    ],
+)
+@pytest.mark.parametrize(
+    "dds_scale, min_rssi, max_rssi", [(0, 35, 60), (0.31616, 0, 10)]
+)
+def test_adrv9009_obs_rssi(
+    test_gain_check,
+    classname,
+    hardware,
+    channel,
+    param_set,
+    dds_scale,
+    min_rssi,
+    max_rssi,
+):
+    test_gain_check(
+        classname, hardware, channel, param_set, dds_scale, min_rssi, max_rssi
+    )
+
+
+#########################################
+@pytest.mark.parametrize("classname, hardware", [(classname, hardware)])
+@pytest.mark.parametrize("channel", [0, 1])
+@pytest.mark.parametrize(
     "param_set, dds_scale, min_rssi, max_rssi",
     [
         (
             dict(
                 trx_lo=1000000000,
+                obs_powerdown_chan0=1,
+                obs_powerdown_chan1=1,
+                rx_powerdown_chan0=0,
+                rx_powerdown_chan1=0,
                 gain_control_mode_chan0="manual",
                 gain_control_mode_chan1="manual",
                 rx_hardwaregain_chan0=0,
                 rx_hardwaregain_chan1=0,
-                tx_hardwaregain_chan0=-10,
-                tx_hardwaregain_chan1=-10,
+                tx_hardwaregain_chan0=0,
+                tx_hardwaregain_chan1=0,
                 calibrate_tx_qec_en=1,
                 calibrate=1,
             ),
@@ -155,8 +200,8 @@ def test_adrv9009_dds_gain_check_agc(
                 gain_control_mode_chan1="manual",
                 rx_hardwaregain_chan0=30,
                 rx_hardwaregain_chan1=30,
-                tx_hardwaregain_chan0=-10,
-                tx_hardwaregain_chan1=-10,
+                tx_hardwaregain_chan0=0,
+                tx_hardwaregain_chan1=0,
                 calibrate_tx_qec_en=1,
                 calibrate=1,
             ),
