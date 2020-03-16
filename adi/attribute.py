@@ -45,6 +45,10 @@ def get_numbers(s):
 
 
 class attribute:
+
+    # Set to True if there are multiple slaves (FMComms5)
+    _split_cores = False
+
     def _set_iio_attr(self, channel_name, attr_name, output, value, _ctrl=None):
         """ Set channel attribute """
         if _ctrl:

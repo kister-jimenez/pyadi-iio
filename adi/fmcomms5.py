@@ -42,7 +42,7 @@ class FMComms5(ad9361, multichip):
     """ FMComms5 Dual Transceiver Evaluation Board """
 
     _complex_data = True
-    _split_cores = True
+
     _rx_channel_names = [
         "voltage0",
         "voltage1",

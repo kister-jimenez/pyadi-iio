@@ -90,9 +90,19 @@ ENV/
 env.bak/
 venv.bak/
 
+
+
 # Spyder project settings
 .spyderproject
 .spyproject
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
 
 # Rope project settings
 .ropeproject

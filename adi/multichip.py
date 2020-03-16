@@ -34,13 +34,16 @@ import time
 
 import iio
 
+from adi.ad936x import ad9364
+from adi.context_manager import context_manager
 from adi.rx_tx import phy
 
 
-class multichip(phy):
+class multichip(phy, context_manager):
     """ class type for devices with multichip capability"""
 
     slave: iio.Device = []
+    _split_cores = True
 
     def __init__(self, slave):
         if isinstance(slave, list):
@@ -51,23 +54,16 @@ class multichip(phy):
 
     def multichip_sync(self, sampling_sync=True, interface_sync=True):
         mcs_is_debug_attr = self._get_iio_debug_attr_str("multichip_sync") is not None
+
+        hmc7044_dev = self._ctx.find_device("hmc7044")
+        if hmc7044_dev is not None:
+            hmc7044_dev.reg_write(0x5A, 0)
+
         if sampling_sync:
-            tx_sample_freq = self._get_iio_attr("voltage0", "sampling_frequency", True)
-            for slave in self.slave:
-                tx_sample_freq_chip_b = self._get_iio_attr(
-                    "voltage0", "sampling_frequency", True, slave
-                )
-                if tx_sample_freq != tx_sample_freq_chip_b:
-                    # Set same sampling frequency
-                    self._set_iio_attr(
-                        "voltage0", "sampling_frequency", True, tx_sample_freq, slave
-                    )
+            self.sample_sync()
+
         if interface_sync:
-            tmp = self._ctrl.reg_read(6)
-            tmp2 = self._ctrl.reg_read(7)
-            for slave in self.slave:
-                slave.reg_write(6, tmp)
-                slave.reg_write(7, tmp2)
+            self.interface_sync()
 
         ensm = self._get_iio_dev_attr_str("ensm_mode")
         self._set_iio_dev_attr_str("ensm_mode", "alert")
@@ -92,5 +88,24 @@ class multichip(phy):
         for index, slave in enumerate(self.slave):
             self._set_iio_dev_attr_str("ensm_mode", ensm_chip_b[index], slave)
 
-        def __del__(self):
-            self.slave = []
+    def __del__(self):
+        self.slave = []
+
+    def sample_sync(self):
+        tx_sample_freq = self._get_iio_attr("voltage0", "sampling_frequency", True)
+        for slave in self.slave:
+            tx_sample_freq_chip_b = self._get_iio_attr(
+                "voltage0", "sampling_frequency", True, slave
+            )
+            if tx_sample_freq != tx_sample_freq_chip_b:
+                # Set same sampling frequency
+                self._set_iio_attr(
+                    "voltage0", "sampling_frequency", True, tx_sample_freq, slave
+                )
+
+    def interface_sync(self):
+        tmp = self._ctrl.reg_read(6)
+        tmp2 = self._ctrl.reg_read(7)
+        for slave in self.slave:
+            slave.reg_write(6, tmp)
+            slave.reg_write(7, tmp2)

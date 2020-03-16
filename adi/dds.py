@@ -40,9 +40,6 @@ class dds(attribute):
         this allows for two complex tones to be generated per complex channel.
     """
 
-    # Set to True if there are multiple DDS drivers (FMComms5)
-    _split_cores = False
-
     def __update_dds(self, attr, value):
         split_cores_indx = 0
         for indx in range(len(self._txdac.channels)):

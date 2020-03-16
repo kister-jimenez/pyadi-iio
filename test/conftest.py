@@ -177,7 +177,7 @@ def dma_tx(classname, devicename, channel):
 def dma_loopback(classname, devicename, channel):
     bi = BoardInterface(classname, devicename)
     sdr = eval(bi.classname + "(uri='" + bi.uri + "')")
-    if classname == "adi.FMComms5" and (channel in [2, 3]):
+    if sdr._split_cores and (channel in [2, 3]):
         sdr.loopback_chip_b = 1
     else:
         sdr.loopback = 1
@@ -197,7 +197,7 @@ def dma_loopback(classname, devicename, channel):
         for _ in range(100):
             data = sdr.rx()
         # Turn off loopback (for other tests)
-        if classname == "adi.FMComms5" and (channel in [2, 3]):
+        if sdr._split_cores and (channel in [2, 3]):
             sdr.loopback_chip_b = 0
         else:
             sdr.loopback = 0
@@ -241,7 +241,7 @@ def dds_loopback(classname, devicename, param_set, channel, frequency, scale, pe
     for p in param_set.keys():
         setattr(sdr, p, param_set[p])
 
-    if isinstance(sdr, adi.multichip):
+    if sdr._split_cores:
         sdr.multichip_sync()
 
     # Set common buffer settings
@@ -281,7 +281,7 @@ def cw_loopback(classname, devicename, channel, param_set):
     for p in param_set.keys():
         setattr(sdr, p, param_set[p])
 
-    if isinstance(sdr, adi.multichip):
+    if sdr._split_cores:
         sdr.multichip_sync()
 
     # Set common buffer settings
@@ -337,7 +337,7 @@ def t_sfdr(classname, devicename, channel, param_set, sfdr_min):
     for p in param_set.keys():
         setattr(sdr, p, param_set[p])
 
-    if isinstance(sdr, adi.multichip):
+    if sdr._split_cores:
         sdr.multichip_sync()
 
     time.sleep(5)  # Wait for QEC to kick in
