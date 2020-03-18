@@ -36,22 +36,22 @@ import time
 import adi
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy import signal
 import pyvisa
+from scipy import signal
 
 # Set up fmcadc3
 adc3 = adi.fmcadc3(uri="ip:192.168.254.24")
 adc3.hardwaregain = 10
 
-# Transmit a tone from signal generator
+# Transmit a tone from signal generator (Agilent 33220A)
 rm = pyvisa.ResourceManager()
-sig_gen = rm.open_resource("")
-sig_gen.write("APPL:SIN 15000000, 0.100") 
+sig_gen = rm.open_resource("")  # GPIB/USB address of signal generator
+sig_gen.write("APPL:SIN 15000000, 0.100")
 sig_gen.write("OUTP ON")
 time.sleep(1)
 
 # Collect data
-fs = 2500000000000 #2.5GHz
+fs = 2500000000000  # 2.5GHz
 for r in range(40):
     x = adc3.rx()
     f, Pxx_den = signal.periodogram(x[0], fs)
