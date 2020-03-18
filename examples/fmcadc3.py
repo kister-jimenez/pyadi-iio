@@ -36,9 +36,10 @@ import time
 import adi
 import matplotlib.pyplot as plt
 import numpy as np
-import pyvisa
+import pyvisa  # Install pyvisa and pyvisa-py first before running the script
 from scipy import signal
 
+# Connect signal generator (Agilent 33220A) output to Ain of fmcadc3
 # Set up fmcadc3
 adc3 = adi.fmcadc3(uri="ip:192.168.254.24")
 adc3.hardwaregain = 10
