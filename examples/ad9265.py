@@ -31,62 +31,37 @@
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from adi.ad936x import ad9361, ad9363, ad9364, Pluto
+import time
 
-from adi.fmcomms5 import FMComms5
+import adi
+import matplotlib.pyplot as plt
+import numpy as np
+import pyvisa  # Install pyvisa and pyvisa-py first before running the script
+from scipy import signal
 
-from adi.ad9371 import ad9371
+# Connect signal generator (Agilent 33220A) output to Ain of fmcadc3
+# Set up ad9265
+ad9265 = adi.ad9265(uri="ip:192.168.10.193")
 
-from adi.adrv9002 import adrv9002
+# Transmit a tone from signal generator (Agilent 33220A)
+rm = pyvisa.ResourceManager()
+sig_gen = rm.open_resource("")  # GPIB/USB address of signal generator
+sig_gen.write("APPL:SIN 15000000, 1")
+sig_gen.write("OUTP ON")
+time.sleep(1)
 
-from adi.adrv9009 import adrv9009
+# Collect data
+fs = float(ad9265.sample_rate)  # 125MHz
+for r in range(40):
+    x = ad9265.rx()
+    f, Pxx_den = signal.periodogram(x, fs)
+    plt.clf()
+    plt.semilogy(f, Pxx_den)
+    plt.ylim([1e-7, 1e2])
+    plt.xlabel("frequency [Hz]")
+    plt.ylabel("PSD [V**2/Hz]")
+    plt.draw()
+    plt.pause(0.05)
+    time.sleep(0.1)
 
-from adi.adrv9009_zu11eg import adrv9009_zu11eg
-
-from adi.adrv9009_zu11eg_multi import adrv9009_zu11eg_multi
-
-from adi.adrv9009_zu11eg_fmcomms8 import adrv9009_zu11eg_fmcomms8
-
-from adi.ad9081 import ad9081
-
-from adi.ad9094 import ad9094
-
-from adi.ad9265 import ad9265
-
-from adi.ad9680 import ad9680
-
-from adi.ad9144 import ad9144
-
-from adi.ad9152 import ad9152
-
-from adi.cn0532 import cn0532
-
-from adi.daq2 import DAQ2
-
-from adi.daq3 import DAQ3
-
-from adi.adis16460 import adis16460
-
-from adi.adis16507 import adis16507
-
-from adi.ad7124 import ad7124
-
-from adi.adxl345 import adxl345
-
-from adi.fmclidar1 import fmclidar1
-
-from adi.ad5686 import ad5686
-
-from adi.adar1000 import adar1000, adar1000_array
-
-from adi.ltc2983 import ltc2983
-
-from adi.one_bit_adc_dac import one_bit_adc_dac
-
-try:
-    from adi.jesd import jesd
-except ImportError:
-    pass
-
-__version__ = "0.0.7"
-name = "Analog Devices Hardware Interfaces"
+plt.show()
