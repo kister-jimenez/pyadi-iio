@@ -40,18 +40,18 @@ class ad7746(attribute, context_manager):
     """AD7746 24-Bit Capacitance-to-Digital Converter"""
 
     _device_name = "ad7746"
-    _capacitance_channels = [
-        {"1+": "capacitance0"},
-        {"2+": "capacitance1"},
-        {"1": "capacitance0-capacitance2"},
-        {"2": "capacitance1-capacitance3"},
-    ]
-    capacitance = []  # type: ignore
+    _capacitance_channels = {
+        "1+": "capacitance0",
+        "2+": "capacitance1",
+        "1": "capacitance0-capacitance2",
+        "2": "capacitance1-capacitance3",
+    }
+    capacitance = dict()  # type: ignore
 
     def __init__(self, uri=""):
         context_manager.__init__(self, uri, self._device_name)
         self._ctrl = self._ctx.find_device(self._device_name)
-        for key, value in self._capacitance_channels.items:
+        for key, value in self._capacitance_channels.items():
             self.capacitance[key] = self._cap_channel(self._ctrl, value)
 
     @property
