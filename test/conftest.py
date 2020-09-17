@@ -153,10 +153,10 @@ class BaseTestHelpers:
             raise AttributeError(attr + " not defined in " + self.classname)
         setattr(sdr, attr, val)
         rval = getattr(sdr, attr)
-        if not isinstance(rval, str):
+        if not isinstance(rval, (str, bool)):
             rval = float(rval)
         del sdr
-        if not isinstance(val, str):
+        if not isinstance(rval, (str, bool)):
             if abs(val - rval) > tol:
                 print("Failed to set: " + attr)
                 print("Set: " + str(val))
@@ -270,7 +270,7 @@ def attribute_multipe_values(classname, devicename, attr, values, tol, repeats=1
     bi = BoardInterface(classname, devicename)
     for _ in range(repeats):
         for val in values:
-            if isinstance(val, str):
+            if isinstance(rval, (str, bool)):
                 assert bi.dev_interface(val, attr, 0)
             else:
                 assert bi.dev_interface(val, attr, tol) <= tol
@@ -282,13 +282,13 @@ def attribute_multipe_values_with_depends(
     bi = BoardInterface(classname, devicename)
     # Set custom dependencies for the attr being tested
     for p in depends.keys():
-        if isinstance(depends[p], str):
+        if isinstance(rval, (str, bool)):
             assert bi.dev_interface(depends[p], p, 0)
         else:
             assert bi.dev_interface(depends[p], p, tol) <= tol
     for _ in range(repeats):
         for val in values:
-            if isinstance(val, str):
+            if isinstance(rval, (str, bool)):
                 assert bi.dev_interface(val, attr, 0)
             else:
                 assert bi.dev_interface(val, attr, tol) <= tol
