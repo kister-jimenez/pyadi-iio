@@ -1,4 +1,4 @@
-# Copyright (C) 2019 Analog Devices, Inc.
+# Copyright (C) 2020 Analog Devices, Inc.
 #
 # All rights reserved.
 #
@@ -30,48 +30,30 @@
 # BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+import iio
 
-from adi.ad936x import *
+from adi.ad916x import ad9166
+from adi.context_manager import context_manager
 
-from adi.fmcomms5 import *
 
-from adi.ad9371 import *
+class CN0511(ad9166):
+    """ CN0511 Raspberry Pi Hat Signal Generator """
 
-from adi.adrv9002 import adrv9002
+    def __init__(self, uri=""):
+        context_manager.__init__(self, uri, self._device_name)
+        ad9166.__init__(self, uri=uri)
+        self._amp = self._ctx.find_device("ad9166-amp")
+        ad9166.FIR85_enable=True
 
-from adi.adrv9009 import *
+    @property
+    def amp_enable(self):
+        """ amp_enable: Enable or Disable the CN0511 ad9166 amplifier """
+        return True if (self._get_iio_dev_attr("en", _ctrl=self._amp) == 1) else False
 
-from adi.adrv9009_zu11eg import *
-
-from adi.ad9680 import *
-
-from adi.ad9144 import *
-
-from adi.ad9152 import *
-
-from adi.daq2 import *
-
-from adi.daq3 import *
-
-from adi.adis16460 import *
-
-from adi.adis16507 import *
-
-from adi.ad7124 import *
-
-from adi.adxl345 import *
-
-from adi.fmclidar1 import *
-
-from adi.ad5686 import *
-
-from adi.adar1000 import adar1000
-
-from adi.ltc2983 import *
-
-from adi.ad916x import *
-
-from adi.cn0511 import *
-
-__version__ = "0.0.6"
-name = "Analog Devices Hardware Interfaces"
+    @amp_enable.setter
+    def amp_enable(self, value=True):
+        if value:
+            val = 1
+        else:
+            val = 0
+        self._set_iio_dev_attr_str("en", val, _ctrl=self._amp)
