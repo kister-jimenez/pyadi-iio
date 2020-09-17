@@ -43,7 +43,7 @@ class CN0511(ad9166):
         context_manager.__init__(self, uri, self._device_name)
         ad9166.__init__(self, uri=uri)
         self._amp = self._ctx.find_device("ad9166-amp")
-        ad9166.FIR85_enable=True
+        ad9166.FIR85_enable = True
 
     @property
     def amp_enable(self):
