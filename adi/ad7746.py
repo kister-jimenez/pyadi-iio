@@ -32,162 +32,140 @@
 # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import numpy as np
+from adi.attribute import attribute
 from adi.context_manager import context_manager
-from adi.rx_tx import rx
 
 
-class ad7746(rx, context_manager):
+class ad7746(attribute, context_manager):
     """AD7746 24-Bit Capacitance-to-Digital Converter"""
 
     _device_name = "ad7746"
-    _rx_channel_names = ["voltage0", "voltage1"]
+    _capacitance_channels = [
+        {"1+": "capacitance0"},
+        {"2+": "capacitance1"},
+        {"1": "capacitance0-capacitance2"},
+        {"2": "capacitance1-capacitance3"},
+    ]
+    capacitance = []  # type: ignore
 
     def __init__(self, uri=""):
         context_manager.__init__(self, uri, self._device_name)
-        self._rxadc = self._ctx.find_device("ad7746")
-        rx.__init__(self)
+        self._ctrl = self._ctx.find_device(self._device_name)
+        for key, value in self._capacitance_channels.items:
+            self.capacitance[key] = self._cap_channel(self._ctrl, value)
 
     @property
-    def raw_volt0(self):
-        """AD7746 channel raw value"""
+    def vin_raw(self):
+        """ AD7746 raw vin value """
         return self._get_iio_attr("voltage0", "raw", False)
 
     @property
-    def sampling_frequency_available(self):
-        """sampling_frequency_available: AD7746 available sampling frequencies.
-        Returns the available sampling frequencies"""
-        available = [91, 84, 50, 26, 16, 13, 11, 9]
-        return available
-
-    @property
-    def sampling_frequency_volt0(self):
-        """sample_rate: Sample rate RX and TX paths in samples per second of
-        second transceiver"""
+    def vin_sample_rate(self):
+        """ sample_rate: Sample rate for the VIN channel """
         return self._get_iio_attr("voltage0", "sampling_frequency", False)
 
-    @sampling_frequency_volt0.setter
-    def sampling_frequency_volt0(self, rate):
-        frequencies = self.sampling_frequency_available
+    @vin_sample_rate.setter
+    def vin_sample_rate(self, rate):
         try:
-            if rate in frequencies:
-                self._set_iio_attr("voltage0", "sampling_frequency", False, rate)
+            self._set_iio_attr("voltage0", "sampling_frequency", False, rate)
         except Exception as error:
             return error
 
     @property
-    def scale_volt0(self):
-        """AD7746 channel scale(gain)"""
+    def vin_scale(self):
+        """ AD7746 VIN scale """
         return float(self._get_iio_attr_str("voltage0", "scale", False))
 
     @property
-    def sampling_frequency_volt1(self):
-        """sample_rate: Sample rate RX and TX paths in samples per second of
-        second transceiver"""
-        return self._get_iio_attr("voltage1", "sampling_frequency", False)
-
-    @sampling_frequency_volt1.setter
-    def sampling_frequency_volt1(self, rate):
-        frequencies = self.sampling_frequency_available
-        try:
-            if rate in frequencies:
-                self._set_iio_attr("voltage1", "sampling_frequency", False, rate)
-        except Exception as error:
-            return error
-
-    @property
-    def scale_volt1(self):
-        """AD7746 channel scale(gain)"""
-        return float(self._get_iio_attr_str("voltage1", "scale", False))
-
-    @property
     def supply_raw(self):
-        """AD7746 supply raw value"""
+        """AD7746 Voltage supply raw value"""
         return self._get_iio_attr("voltage1", "supply_raw", False)
 
     @property
-    def calibbias_cap0(self):
-        """AD7746 channel calibration bias"""
-        return self._get_iio_attr("capacitance0", "calibbias", False)
+    def supply_sample_rate(self):
+        """ sample_rate: Sample rate for the Voltage supply channel """
+        return self._get_iio_attr("voltage1", "sampling_frequency", False)
 
-    @calibbias_cap0.setter
-    def calibbias_cap0(self, value):
-        self._set_iio_attr("capacitance0", "calibbias", False, value)
-
-    @property
-    def calibscale_cap0(self):
-        return self._get_iio_attr("capacitance0", "calibscale", False)
-
-    @calibscale_cap0.setter
-    def calibscale_cap0(self, value):
-        self._set_iio_attr("capacitance0", "calibscale", False, value)
-
-    @property
-    def offset_cap0(self):
-        return self._get_iio_attr("capacitance0", "offset", False)
-
-    @property
-    def raw_cap0(self):
-        """AD7747 capacitance channel raw value"""
-        return self._get_iio_attr("capacitance0", "raw", False)
-
-    @property
-    def scale_cap0(self):
-        """AD7746 capacitance channel scale(gain)"""
-        return float(self._get_iio_attr_str("capacitance0", "scale", False))
-
-    @property
-    def sampling_frequency_cap0(self):
-        return self._get_iio_attr("capacitance0", "sampling_frequency", False)
-
-    @sampling_frequency_cap0.setter
-    def sampling_frequency_cap0(self, rate):
-        frequencies = self.sampling_frequency_available
+    @supply_sample_rate.setter
+    def supply_sample_rate(self, rate):
         try:
-            if rate in frequencies:
-                self._set_iio_attr("capacitance0", "sampling_frequency", False, rate)
+            self._set_iio_attr("voltage1", "sampling_frequency", False, rate)
         except Exception as error:
             return error
 
     @property
-    def calibbias_cap1(self):
-        """AD7746 channel calibration bias"""
-        return self._get_iio_attr("capacitance1", "calibbias", False)
-
-    @calibbias_cap1.setter
-    def calibbias_cap1(self, value):
-        self._set_iio_attr("capacitance1", "calibbias", False, value)
+    def supply_scale(self):
+        """ AD7746 Voltage supply scale """
+        return float(self._get_iio_attr_str("voltage1", "scale", False))
 
     @property
-    def calibscale_cap1(self):
-        return self._get_iio_attr("capacitance1", "calibscale", False)
-
-    @calibscale_cap1.setter
-    def calibscale_cap1(self, value):
-        self._set_iio_attr("capacitance1", "calibscale", False, value)
+    def temp_internal(self):
+        """ AD7746 Internal Temperature Sensor reading in millidegrees Celsius """
+        self._get_iio_attr("temp0", "input", False)
 
     @property
-    def offset_cap1(self):
-        return self._get_iio_attr("capacitance1", "offset", False)
+    def temp_external(self):
+        """ AD7746 External Temperature Sensor reading in millidegrees Celsius """
+        self._get_iio_attr("temp1", "input", False)
 
-    @property
-    def raw_cap1(self):
-        """AD7747 capacitance channel raw value"""
-        return self._get_iio_attr("capacitance1", "raw", False)
+    class _cap_channel(attribute):
+        def __init__(self, ctrl, channel_name):
+            self.name = channel_name
+            self._ctrl = ctrl
 
-    @property
-    def scale_cap1(self):
-        """AD7746 capacitance channel scale(gain)"""
-        return float(self._get_iio_attr_str("capacitance1", "scale", False))
+        @property
+        def raw(self):
+            """ AD7747 capacitance channel raw value """
+            return self._get_iio_attr(self.name, "raw", False)
 
-    @property
-    def sampling_frequency_cap1(self):
-        return self._get_iio_attr("capacitance1", "sampling_frequency", False)
+        @property
+        def sample_rate(self):
+            """ AD7746 capacitance channel sampling frequency """
+            return self._get_iio_attr(self.name, "sampling_frequency", False)
 
-    @sampling_frequency_cap1.setter
-    def sampling_frequency_cap1(self, rate):
-        frequencies = self.sampling_frequency_available
-        try:
-            if rate in frequencies:
-                self._set_iio_attr("capacitance1", "sampling_frequency", False, rate)
-        except Exception as error:
-            return error
+        @sample_rate.setter
+        def sample_rate(self, rate):
+            try:
+                self._set_iio_attr(self.name, "sampling_frequency", False, rate)
+            except Exception as error:
+                return error
+
+        @property
+        def sample_rate_available(self):
+            """ AD7746 available sampling frequencies.
+            Returns the available sampling frequencies """
+            available = [91, 84, 50, 26, 16, 13, 11, 9]
+            return available
+
+        @property
+        def calibbias(self):
+            """ AD7746 channel calibration bias """
+            return self._get_iio_attr(self.name, "calibbias", False)
+
+        def calibbias_calibration(self):
+            """ Calibrate calibbias value """
+            self._set_iio_attr(self.name, "calibbias", False, 1)
+
+        @property
+        def calibscale(self):
+            """ AD7746 channel calibration scale """
+            return self._get_iio_attr(self.name, "calibscale", False)
+
+        def calibscale_calibration(self):
+            """ Calibrate calibscale value """
+            self._set_iio_attr(self.name, "calibscale", False, 1)
+
+        @property
+        def offset(self):
+            """ offset: Read and write AD7746 capacitance channel offset """
+            return self._get_iio_attr(self.name, "offset", False)
+
+        @offset.setter
+        def offset(self, value):
+            offset_val = value / self.scale
+            self._set_iio_attr(self.name, "offset", False, offset_val)
+
+        @property
+        def scale(self):
+            """ AD7746 capacitance channel scale """
+            return float(self._get_iio_attr_str(self.name, "scale", False))
