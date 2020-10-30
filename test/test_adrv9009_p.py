@@ -1,3 +1,6 @@
+from os import listdir
+from os.path import dirname, join, realpath
+
 import pytest
 
 try:
@@ -11,6 +14,8 @@ except:
 hardware = "adrv9009"
 classname = "adi.adrv9009"
 
+profile_path = dirname(realpath(__file__)) + "/adrv9009_profiles/"
+test_profiles = [join(profile_path, f) for f in listdir(profile_path)]
 
 #########################################
 @pytest.mark.iio_hardware(hardware)
@@ -229,6 +234,19 @@ def test_adrv9009_dds_gain_check_vary_power(
 )
 def test_adrv9009_iq_loopback(test_iq_loopback, iio_uri, classname, channel, param_set):
     test_iq_loopback(iio_uri, classname, channel, param_set)
+
+
+#########################################
+@pytest.mark.iio_hardware(hardware)
+@pytest.mark.parametrize("classname", [(classname)])
+@pytest.mark.parametrize("attr", ["profile"])
+@pytest.mark.parametrize(
+    "files", test_profiles,
+)
+def test_adrv9009_profile_write(
+    test_attribute_write_only_str, iio_uri, classname, attr, files
+):
+    test_attribute_write_only_str(iio_uri, classname, attr, files)
 
 
 #########################################
