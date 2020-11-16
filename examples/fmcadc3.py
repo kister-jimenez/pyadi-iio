@@ -31,57 +31,38 @@
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from adi.ad936x import *
+import time
 
-from adi.fmcomms5 import *
+import adi
+import matplotlib.pyplot as plt
+import numpy as np
+import pyvisa  # Install pyvisa and pyvisa-py first before running the script
+from scipy import signal
 
-from adi.ad9371 import *
+# Connect signal generator (Agilent 33220A) output to Ain of fmcadc3
+# Set up fmcadc3
+adc3 = adi.fmcadc3(uri="ip:192.168.254.24")
+adc3.hardwaregain = 10
 
-from adi.adrv9002 import adrv9002
+# Transmit a tone from signal generator (Agilent 33220A)
+rm = pyvisa.ResourceManager()
+sig_gen = rm.open_resource("")  # GPIB/USB address of signal generator
+sig_gen.write("APPL:SIN 15000000, 0.100")
+sig_gen.write("OUTP ON")
+time.sleep(1)
 
-from adi.adrv9009 import *
+# Collect data
+fs = 2500000000000  # 2.5GHz
+for r in range(40):
+    x = adc3.rx()
+    f, Pxx_den = signal.periodogram(x[0], fs)
+    plt.clf()
+    plt.semilogy(f, Pxx_den)
+    plt.ylim([1e-7, 1e2])
+    plt.xlabel("frequency [Hz]")
+    plt.ylabel("PSD [V**2/Hz]")
+    plt.draw()
+    plt.pause(0.05)
+    time.sleep(0.1)
 
-from adi.adrv9009_zu11eg import *
-
-from adi.adrv9009_zu11eg_multi import *
-
-from adi.adrv9009_zu11eg_fmcomms8 import *
-
-from adi.ada4961 import *
-
-from adi.ad9680 import *
-
-from adi.ad9625 import *
-
-from adi.ad9144 import *
-
-from adi.ad9152 import *
-
-from adi.cn0532 import *
-
-from adi.daq2 import *
-
-from adi.daq3 import *
-
-from adi.adis16460 import *
-
-from adi.adis16507 import *
-
-from adi.ad7124 import *
-
-from adi.adxl345 import *
-
-from adi.fmcadc3 import *
-
-from adi.fmclidar1 import *
-
-from adi.jesd import *
-
-from adi.ad5686 import *
-
-from adi.adar1000 import adar1000
-
-from adi.ltc2983 import *
-
-__version__ = "0.0.6"
-name = "Analog Devices Hardware Interfaces"
+plt.show()

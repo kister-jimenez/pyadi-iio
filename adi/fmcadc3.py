@@ -31,57 +31,14 @@
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from adi.ad936x import *
+from adi.ad9625 import ad9625
+from adi.ada4961 import ada4961
 
-from adi.fmcomms5 import *
 
-from adi.ad9371 import *
+class fmcadc3(ad9625, ada4961):
+    """ FMCADC3 High-Speed Data Aquistion Device """
 
-from adi.adrv9002 import adrv9002
+    def __init__(self, uri=""):
 
-from adi.adrv9009 import *
-
-from adi.adrv9009_zu11eg import *
-
-from adi.adrv9009_zu11eg_multi import *
-
-from adi.adrv9009_zu11eg_fmcomms8 import *
-
-from adi.ada4961 import *
-
-from adi.ad9680 import *
-
-from adi.ad9625 import *
-
-from adi.ad9144 import *
-
-from adi.ad9152 import *
-
-from adi.cn0532 import *
-
-from adi.daq2 import *
-
-from adi.daq3 import *
-
-from adi.adis16460 import *
-
-from adi.adis16507 import *
-
-from adi.ad7124 import *
-
-from adi.adxl345 import *
-
-from adi.fmcadc3 import *
-
-from adi.fmclidar1 import *
-
-from adi.jesd import *
-
-from adi.ad5686 import *
-
-from adi.adar1000 import adar1000
-
-from adi.ltc2983 import *
-
-__version__ = "0.0.6"
-name = "Analog Devices Hardware Interfaces"
+        ad9625.__init__(self, uri=uri)
+        ada4961.__init__(self, uri=uri)
