@@ -31,55 +31,31 @@
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from adi.ad936x import *
+from adi.context_manager import context_manager
+from adi.rx_tx import rx
 
-from adi.fmcomms5 import *
 
-from adi.ad9371 import *
+class ad9265(rx, context_manager):
+    """ AD9265 High-Speed ADC """
 
-from adi.adrv9002 import adrv9002
+    _complex_data = False
+    _rx_channel_names = ["voltage0"]
+    _device_name = ""
 
-from adi.adrv9009 import *
+    def __init__(self, uri=""):
 
-from adi.adrv9009_zu11eg import *
+        context_manager.__init__(self, uri, self._device_name)
 
-from adi.adrv9009_zu11eg_multi import *
+        self._rxadc = self._ctx.find_device("axi-ad9265-core-lpc")
 
-from adi.adrv9009_zu11eg_fmcomms8 import *
+        rx.__init__(self)
 
-from adi.ad9680 import *
+    @property
+    def test_mode(self):
+        """test_mode: Select Test Mode. Options are:
+        off midscale_short pos_fullscale neg_fullscale checkerboard pn_long pn_short one_zero_toggle"""
+        return self._get_iio_attr("voltage0", "test_mode", False)
 
-from adi.ad9434 import *
-
-from adi.ad9265 import *
-
-from adi.ad9144 import *
-
-from adi.ad9152 import *
-
-from adi.cn0532 import *
-
-from adi.daq2 import *
-
-from adi.daq3 import *
-
-from adi.adis16460 import *
-
-from adi.adis16507 import *
-
-from adi.ad7124 import *
-
-from adi.adxl345 import *
-
-from adi.fmclidar1 import *
-
-from adi.jesd import *
-
-from adi.ad5686 import *
-
-from adi.adar1000 import adar1000
-
-from adi.ltc2983 import *
-
-__version__ = "0.0.6"
-name = "Analog Devices Hardware Interfaces"
+    @test_mode.setter
+    def test_mode(self, value):
+        self._set_iio_attr("voltage0", "test_mode", False, value, self._rxadc)
