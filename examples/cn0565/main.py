@@ -206,7 +206,9 @@ def main(argv):
     form = RealtimeEIT(None, args.baudrate, args.iio, el)
     form.show()
     sys.exit(app.exec())
-    
+
+def new_function()
+    print("test")
 
 if __name__=='__main__':
     main(sys.argv[1:])
