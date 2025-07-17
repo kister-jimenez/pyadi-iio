@@ -36,6 +36,20 @@ iio_context = "serial:COM8,230400,8n1"
 # Set enable_plot to True if you want to plot in real-time
 enable_plot = True
 
+use_factory_correction = False
+
+# When False, it will only run the routine with the following parameters:
+# - Harmonic magnitude/phase correction will not be reset.
+# - Resulting computations will not be applied to registers.
+calibrate = True
+
+# When True, it will write the correction values to the register. Except when calibrate = False
+apply_correction_after_calibration = True
+
+# When True, it will zero the correction values before the start of the run. Except when calibrate = False
+zero_correction_before_calibration = True
+
+
 full_turn = 360 #degrees
 
 # Motor Driver Parameters
@@ -117,10 +131,23 @@ data = []
 angles = []
 motor_angles = []
 
+if use_factory_correction:
+    cal_setup.h8_corr_source = "factory"
+else:
+    cal_setup.h8_corr_source = "user"
+
 # Set up harmonic correction parameters
-cal_setup.h8_mag_corr = 0
-cal_setup.h8_phase_corr = 0
-cal_setup.h8_corr_source = "user"
+if calibrate and zero_correction_before_calibration:
+    cal_setup.h1_mag_corr = 0
+    cal_setup.h1_phase_corr = 0
+    cal_setup.h2_mag_corr = 0
+    cal_setup.h2_phase_corr = 0
+    cal_setup.h3_mag_corr = 0
+    cal_setup.h3_phase_corr = 0
+    cal_setup.h8_mag_corr = 0
+    cal_setup.h8_phase_corr = 0
+    cal_setup.h8_corr_source = "user"
+
 
 step_delay = abs(u_steps)*4 / vmax
 curr_abs_usteps = int(cal_setup.current_pos)
@@ -129,7 +156,7 @@ print("Calibration Start...")
 print("")
 print("")
 
-for i in range(256):
+for i in range(samples_size):
     curr_abs_usteps_corr =  ref_u_steps_offset + direction * curr_abs_usteps
     # curr_motor_angle = (curr_abs_usteps_corr % full_turn_usteps) * full_step_angle / usteps_per_full_step
     cal_setup.target_pos = curr_abs_usteps
@@ -170,9 +197,30 @@ primary_angles = np.array(angles)
 ref_angles = np.array(motor_angles)
 scaled_harmonic_errors, harmonic_errors, angle_error, error_mag = admt4000_cal.admt4000_calibration(primary_angles, ref_angles)
 corrected_angle_error, corrected_error_mag = admt4000_cal.calculate_corrections(angle_error, harmonic_errors, ref_angles)
+print("1st harmonic")
+print("bin: 11")
+print("magnitude:" + str(error_mag[11]))
+print("1nd harmonic")
+print("bin: 22")
+print("magnitude:" + str(error_mag[22]))
+
+if not (error_mag[11] == max(error_mag[8:15]) and error_mag[22] == max(error_mag[19:26])):
+    print(f"\033[31mHarmonics might not be the localized peak!!!\033[0m")
 
 print("Harmonic Errors (raw):", harmonic_errors)
 print("Scaled Harmonic Errors:", scaled_harmonic_errors)
+
+if calibrate and apply_correction_after_calibration:
+    print("Applying correction values to ADMT4000 registers...")
+    cal_setup.h1_mag_corr = scaled_harmonic_errors[1]['magnitude']
+    cal_setup.h1_phase_corr = scaled_harmonic_errors[1]['phase']
+    cal_setup.h2_mag_corr = scaled_harmonic_errors[2]['magnitude']
+    cal_setup.h2_phase_corr = scaled_harmonic_errors[2]['phase']
+    cal_setup.h3_mag_corr = scaled_harmonic_errors[3]['magnitude']
+    cal_setup.h3_phase_corr = scaled_harmonic_errors[3]['phase']
+    cal_setup.h8_mag_corr = scaled_harmonic_errors[8]['magnitude']
+    cal_setup.h8_phase_corr = scaled_harmonic_errors[8]['phase']
+
 
 if enable_plot:
     admt4000_cal.print_cal_plots(primary_angles, angle_error, error_mag, corrected_angle_error, corrected_error_mag)

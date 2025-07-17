@@ -21,7 +21,7 @@ def print_cal_plots(primary_angles, angle_error, error_mag, corrected_angle_erro
     plt.xlabel('Sample')
     plt.ylabel('Error (degrees)')
     plt.xlim(0, len(angle_error))
-    plt.ylim(-0.5, 0.5)  # Adjust the limits as necessary
+    #plt.ylim(np.min(angle_error) * 1.5, np.max(angle_error) * 1.5)  # Set limits to fit peaks
     # plt.legend()
 
     plt.subplot(5, 1, 3)
@@ -30,7 +30,10 @@ def print_cal_plots(primary_angles, angle_error, error_mag, corrected_angle_erro
     plt.xlabel('Bin')
     plt.ylabel('Magnitude')
     plt.xlim(0, len(error_mag))
-    plt.ylim(10e-4, 10e0)  # Adjust the limits as necessary
+    plt.annotate('H1 (11, ' + str(round(error_mag[11], 4)) + ')', xy=(11, error_mag[11]), xytext=(0, 1.1), textcoords='axes fraction', arrowprops=dict(facecolor='black', width=1, headwidth=3), fontsize=8, color='red')
+    plt.annotate('H2 (22, ' + str(round(error_mag[22], 4)) + ')', xy=(22, error_mag[22]), xytext=(0.2, 1.1), textcoords='axes fraction', arrowprops=dict(facecolor='black', width=1, headwidth=3), fontsize=8, color='red')
+    #plt.ylim(np.min(error_mag) * 1.5, np.max(error_mag) * 1.5)  # Set limits to fit peaks
+    # plt.ylim(10e-4, 10e0)  # Adjust the limits as necessary
     # plt.legend()
 
     plt.subplot(5, 1, 4)
@@ -39,7 +42,7 @@ def print_cal_plots(primary_angles, angle_error, error_mag, corrected_angle_erro
     plt.xlabel('Sample')
     plt.ylabel('Error (degrees)')
     plt.xlim(0, len(corrected_angle_error))
-    plt.ylim(-0.5, 0.5)  # Adjust the limits as necessary
+    #plt.ylim(np.min(corrected_angle_error) * 1.5, np.max(corrected_angle_error) * 1.5)
     # plt.legend()
 
     plt.subplot(5, 1, 5)
@@ -48,7 +51,8 @@ def print_cal_plots(primary_angles, angle_error, error_mag, corrected_angle_erro
     plt.xlabel('Bin')
     plt.ylabel('Magnitude')
     plt.xlim(0, len(corrected_error_mag))
-    plt.ylim(10e-4, 10e0)  # Adjust the limits as necessary
+    #plt.ylim(np.min(corrected_error_mag) * 1.5, np.max(corrected_error_mag) * 1.5)
+
     #plt.legend()
 
     plt.show()
